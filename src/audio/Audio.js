@@ -66,12 +66,19 @@ export class AudioFX {
     src.start(t0); src.stop(t0 + dur + 0.05);
   }
 
-  // ---------- 游戏音效 ----------
-  heroShoot() { this._tone({ freq: 1400, freqEnd: 900, type: 'triangle', dur: 0.06, vol: 0.12 }); }
-  towerShoot() { this._tone({ freq: 700, freqEnd: 500, type: 'square', dur: 0.05, vol: 0.08 }); }
-  snipe() { this._tone({ freq: 300, freqEnd: 90, type: 'sawtooth', dur: 0.18, vol: 0.2 }); this._noise({ dur: 0.1, vol: 0.12, filterFrom: 6000, filterTo: 800 }); }
-  hit() { this._noise({ dur: 0.05, vol: 0.1, filterFrom: 5000, filterTo: 1500 }); }
-  killSmall() { this._noise({ dur: 0.18, vol: 0.2, filterFrom: 3000, filterTo: 200 }); this._tone({ freq: 320, freqEnd: 70, type: 'sine', dur: 0.2, vol: 0.22 }); }
+  // ---------- 游戏音效（高频音效全局节流防叠爆）----------
+  _thr(name, ms) {
+    const now = performance.now();
+    if (!this._thrMap) this._thrMap = {};
+    if (this._thrMap[name] && now - this._thrMap[name] < ms) return false;
+    this._thrMap[name] = now;
+    return true;
+  }
+  heroShoot() { if (this._thr('hs', 90)) this._tone({ freq: 1400, freqEnd: 900, type: 'triangle', dur: 0.06, vol: 0.12 }); }
+  towerShoot() { if (this._thr('ts', 80)) this._tone({ freq: 700, freqEnd: 500, type: 'square', dur: 0.05, vol: 0.08 }); }
+  snipe() { if (this._thr('sn', 200)) { this._tone({ freq: 300, freqEnd: 90, type: 'sawtooth', dur: 0.18, vol: 0.2 }); this._noise({ dur: 0.1, vol: 0.12, filterFrom: 6000, filterTo: 800 }); } }
+  hit() { if (this._thr('ht', 70)) this._noise({ dur: 0.05, vol: 0.1, filterFrom: 5000, filterTo: 1500 }); }
+  killSmall() { if (this._thr('ks', 90)) { this._noise({ dur: 0.18, vol: 0.2, filterFrom: 3000, filterTo: 200 }); this._tone({ freq: 320, freqEnd: 70, type: 'sine', dur: 0.2, vol: 0.22 }); } }
   explodeBig() {
     this._noise({ dur: 0.5, vol: 0.35, filterFrom: 2400, filterTo: 60 });
     this._tone({ freq: 130, freqEnd: 32, type: 'sine', dur: 0.55, vol: 0.4 });

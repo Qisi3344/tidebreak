@@ -191,6 +191,7 @@ export class Game {
     this.shake = 0;
 
     this.state = STATE.PLAYING;
+    this.time = 0;
     this.ui.showMenu(false);
     this.ui.showPause(false);
     this.ui.showResult(false);
@@ -239,10 +240,13 @@ export class Game {
     this.state = STATE.RESULT;
     this.audio.win();
     this.ui.showHUD(false);
+    const finalScore = this.economy.score + this.coreHp * ECON.coreHpScore;
+    const hs = this._saveHiscore(finalScore);
     this.ui.setResult(true, {
-      wave: this.waves.wave, score: this.economy.score + this.coreHp * ECON.coreHpScore,
+      wave: this.waves.wave, score: finalScore,
       kills: this.economy.kills, built: this.economy.built,
       coreHp: this.coreHp, coreMax: this.coreMax, endless: this.waves.endless,
+      hiscore: hs, time: this.time,
     });
     this.economy.addScore(this.coreHp * ECON.coreHpScore);
   }
@@ -251,11 +255,24 @@ export class Game {
     this.state = STATE.RESULT;
     this.audio.lose();
     this.ui.showHUD(false);
+    const hs = this._saveHiscore(this.economy.score);
     this.ui.setResult(false, {
       wave: this.waves.wave, score: this.economy.score,
       kills: this.economy.kills, built: this.economy.built,
       coreHp: 0, coreMax: this.coreMax, endless: this.waves.endless,
+      hiscore: hs, time: this.time,
     });
+  }
+
+  _saveHiscore(score) {
+    try {
+      const prev = parseInt(localStorage.getItem('tidebreak_hiscore') || '0', 10);
+      if (score > prev) {
+        localStorage.setItem('tidebreak_hiscore', String(Math.floor(score)));
+        return Math.floor(score);
+      }
+      return prev;
+    } catch { return Math.floor(score); }
   }
 
   // ================= 敌人生成 =================
@@ -488,6 +505,16 @@ export class Game {
     // 世界 & 特效
     this.world.update(dt, this.sm.camera);
     this.fx.update(dt);
+
+    // Boss 血条
+    const bosses = this.enemies.active.filter(e => e.alive && e.def.boss);
+    if (bosses.length) {
+      const hp = bosses.reduce((s, e) => s + e.hp, 0);
+      const max = bosses.reduce((s, e) => s + e.maxHp, 0);
+      this.ui.setBossHp(hp / max);
+    } else {
+      this.ui.setBossHp(null);
+    }
 
     // UI 刷新
     this.ui.setHUD({

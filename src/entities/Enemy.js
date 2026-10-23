@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ENEMIES, hpScale, speedScale } from '../core/config.js';
+import { ENEMIES, hpScale, speedScale, bossHpScale } from '../core/config.js';
 
 // 敌人：池化复用，程序化建模，5 种 + Boss 技能
 // Boss 技能（按波次轮转）：frenzy 狂潮加速 / summon 裂地召唤 / shield 相位护盾
@@ -131,7 +131,7 @@ export class Enemy {
     this.onLeak = onLeak;
     this.onSummon = onSummon;
 
-    const scale = hpScale(wave) * (type === 'boss' ? 1 + 0.55 * Math.floor(wave / 5) : 1);
+    const scale = def.boss ? bossHpScale(wave) : hpScale(wave);
     this.maxHp = Math.round(def.hp * scale);
     this.hp = this.maxHp;
     this.baseSpeed = def.speed * speedScale(wave);
@@ -198,6 +198,7 @@ export class Enemy {
     const real = Math.max(dmg - this.armor, dmg * 0.2);
     this.hp -= real;
     this.showHpT = 2.5;
+    this._flashT = 0.09;
     if (this.hp <= 0) {
       this.hp = 0;
       this.alive = false;
@@ -261,11 +262,13 @@ export class Enemy {
       if (this.type === 'boss') m.grp.rotation.y += dt * 0.4;
     }
     if (m.inner.userData.halo) m.inner.userData.halo.rotation.z += dt * 2;
-    // 冻结色调
+    // 冻结 / 受击闪白色调
     const tint = this.slow > 0;
+    const flash = (this._flashT || 0) > 0;
+    if (flash) this._flashT -= dt;
     m.inner.traverse(o => {
-      if (o.isMesh && o.material.emissive && !this.shielded) {
-        o.material.emissiveIntensity = tint ? 0.7 : 1.4;
+      if (o.isMesh && o.material.emissive) {
+        o.material.emissiveIntensity = this.shielded ? 0.25 : flash ? 5.5 : tint ? 0.7 : 1.4;
       }
     });
 

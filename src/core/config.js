@@ -85,7 +85,7 @@ export const ENEMIES = {
     color: 0xc46bff, size: 0.85, flying: false, armor: 3, // 每次受击减伤
   },
   floater: {
-    id: 'floater', name: '悬浮者', hp: 55, speed: 2.6, bounty: 12, score: 18,
+    id: 'floater', name: '悬浮者', hp: 44, speed: 2.4, bounty: 14, score: 18,
     color: 0x7dfff0, size: 0.6, flying: true,
   },
   splitter: {
@@ -129,16 +129,16 @@ export function buildWaves() {
     { type: 'drifter', count: 10, gap: 0.8, delay: 6 },
   ], 80);                                                                          // W10 Boss + 双裂隙开启
   push([
-    { type: 'shelled', count: 10, gap: 1.4 },
-    { type: 'floater', count: 10, gap: 0.9, delay: 5 },
+    { type: 'shelled', count: 9, gap: 1.5 },
+    { type: 'floater', count: 6, gap: 1.1, delay: 5 },
   ], null, true);
   push([
-    { type: 'splitter', count: 12, gap: 0.9 },
-    { type: 'shelled', count: 8, gap: 1.5, delay: 6 },
+    { type: 'splitter', count: 8, gap: 1.2 },
+    { type: 'shelled', count: 7, gap: 1.6, delay: 6 },
   ]);
   push([
-    { type: 'drifter', count: 24, gap: 0.4 },
-    { type: 'floater', count: 12, gap: 0.8, delay: 5 },
+    { type: 'drifter', count: 18, gap: 0.5 },
+    { type: 'floater', count: 8, gap: 1.0, delay: 5 },
   ]);
   push([
     { type: 'shelled', count: 12, gap: 1.3 },
@@ -199,15 +199,17 @@ export function buildWaves() {
 }
 
 // 全局难度乘子
-export function hpScale(wave) { return 1 + 0.22 * (wave - 1) + 0.012 * (wave - 1) ** 2; }
+export function hpScale(wave) { return 1 + 0.22 * (wave - 1) + 0.0105 * (wave - 1) ** 2; }
 export function speedScale(wave) { return Math.min(1 + 0.012 * (wave - 1), 1.35); }
+// Boss 血量：hpScale 封顶 + 波次额外乘子
+export function bossHpScale(wave) { return Math.min(hpScale(wave), 7) * (1 + 0.32 * Math.floor(wave / 5)); }
 
 // ---------- 英雄 ----------
 export const HERO = {
   moveSpeed: 9,
   maxHp: 100,
   shootRate: 5.2,        // 发/秒
-  shootDmg: 9,
+  shootDmg: 10,
   shootRange: 11,
   bulletSpeed: 26,
   xpToLevel: (lv) => 60 + lv * 45,
@@ -225,10 +227,10 @@ export const HERO = {
 
 // ---------- 经济 ----------
 export const ECON = {
-  startGold: 220,
-  waveBonusBase: 18,     // 每波基础奖励
-  earlyBonus: 14,        // 提前召唤下一波奖励
-  coreHpScore: 25,       // 结算时每点剩血分数
+  startGold: 230,
+  waveBonusBase: 22,   // 每波基础奖励
+  earlyBonus: 14,      // 提前召唤下一波奖励
+  coreHpScore: 25,     // 结算时每点剩血分数
 };
 
 export const WAVES_TOTAL = 25;

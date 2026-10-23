@@ -84,7 +84,9 @@ export class ProjectilePool {
           if (e.flying && !p.hitsFly) continue;
           const dx = e.pos.x - m.position.x, dz = e.pos.z - m.position.z;
           const dy = e.hitY - m.position.y;
-          if (dx * dx + dz * dz + dy * dy < (e.size + 0.45) ** 2) { hit = e; break; }
+          // 飞行单位放宽垂直判定，保证英雄直线弹可对空
+          const vTol = e.flying ? 1.7 : e.size + 0.45;
+          if (dx * dx + dz * dz < (e.size + 0.45) ** 2 && Math.abs(dy) < vTol) { hit = e; break; }
         }
         if (hit) {
           if (this.onHit) this.onHit(hit, p);

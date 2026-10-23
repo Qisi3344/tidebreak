@@ -59,6 +59,12 @@ const CSS = `
 #tbd-inter .cd { font-size: 26px; color: #9ff5ff; font-weight: 700; text-shadow: 0 0 14px #35e0ff66; }
 #tbd-toast { position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%); font-size: 15px; color: #ff9db4; text-shadow: 0 0 10px #ff508899; opacity: 0; transition: opacity .3s; pointer-events: none; }
 
+/* ---------- Boss 血条 ---------- */
+#tbd-bossbar { position: absolute; top: 72px; left: 50%; transform: translateX(-50%); width: 440px; text-align: center; display: none; }
+#tbd-bossbar .nm { font-size: 13px; letter-spacing: 4px; color: #ff9db4; text-shadow: 0 0 10px #ff2d55aa; }
+#tbd-bossbar .bar { height: 9px; margin-top: 3px; background: #180a12; border: 1px solid #ff2d5566; border-radius: 5px; overflow: hidden; }
+#tbd-bossbar .fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff2d55, #ff8ba0); transition: width .2s; }
+
 /* ---------- 飘字 ---------- */
 .tbd-float { position: absolute; font-size: 14px; font-weight: 800; pointer-events: none; text-shadow: 0 0 8px currentColor; white-space: nowrap; }
 /* ---------- 升级三选一 ---------- */
@@ -103,7 +109,8 @@ export class UI {
         星潮裂隙开启，虚空生物正向潮核涌来。<br>
         你是最后一任守堤人——造塔布防，或亲自扣下扳机。撑过 ${WAVES_TOTAL} 波狂潮。<br>
         <span style="color:#4d7a90">WASD 移动 · 鼠标瞄准 · 左键射击 · Q 汐爆 · E 时滞力场 · 右键点空地建塔/点塔升级 · ESC 暂停 · N 提前召唤</span>
-      </div>`;
+      </div>
+      <div class="tbd-tagline" id="tbd-hiscore" style="margin-top:8px;font-size:13px"></div>`;
     const row = el('div', 'tbd-row');
     const start = el('button', 'tbd-btn primary', '开 始 守 潮');
     start.onclick = () => this.onStart && this.onStart();
@@ -136,7 +143,14 @@ export class UI {
     this.root.appendChild(this.result);
   }
 
-  showMenu(v) { this.menu.style.display = v ? 'flex' : 'none'; }
+  showMenu(v) {
+    this.menu.style.display = v ? 'flex' : 'none';
+    if (v) {
+      const hs = parseInt((localStorage.getItem('tidebreak_hiscore') || '0'), 10);
+      const elH = this.menu.querySelector('#tbd-hiscore');
+      if (elH) elH.textContent = hs > 0 ? `历史最高纪录 · ${hs.toLocaleString()}` : '';
+    }
+  }
   showPause(v) { this.pauseMenu.style.display = v ? 'flex' : 'none'; }
   showResult(v) { this.result.style.display = v ? 'flex' : 'none'; }
   hideLevelup() { this.levelup.style.display = 'none'; }
@@ -155,14 +169,19 @@ export class UI {
 
   setResult(win, data) {
     this.result.style.display = 'flex';
+    const isRecord = data.hiscore !== undefined && data.score >= data.hiscore;
+    const mm = Math.floor((data.time || 0) / 60), ss = Math.floor((data.time || 0) % 60);
+    const timeStr = `${mm}:${String(ss).padStart(2, '0')}`;
     this.result.innerHTML = `
       <h1 class="tbd-title" style="font-size:52px;${win ? '' : 'color:#ff9db4;text-shadow:0 0 30px #ff5088aa'}">${win ? '潮 汐 已 破' : '潮 核 陷 落'}</h1>
       <div class="tbd-subtitle">${win ? `你守住了全部 ${WAVES_TOTAL} 波狂潮${data.endless ? '，并续写无尽传奇' : ''}` : `防线在第 ${data.wave} 波崩塌`}</div>
       <div class="tbd-stats">
-        <span>最终得分</span><b>${data.score.toLocaleString()}</b>
+        <span>最终得分${isRecord ? ' <b style="color:#ffd166;font-size:13px">★ 新纪录</b>' : ''}</span><b>${data.score.toLocaleString()}</b>
+        <span>历史最高</span><b>${(data.hiscore || 0).toLocaleString()}</b>
         <span>击杀数</span><b>${data.kills}</b>
         <span>抵达波次</span><b>${data.wave}${data.endless ? ' (无尽)' : '/' + WAVES_TOTAL}</b>
         <span>建造塔数</span><b>${data.built}</b>
+        <span>守潮用时</span><b>${timeStr}</b>
         <span>潮核剩余</span><b>${data.coreHp} / ${data.coreMax}</b>
       </div>`;
     const row = el('div', 'tbd-row');
@@ -207,7 +226,7 @@ export class UI {
       this._skillEls[s.key] = d;
     }
 
-    // 横幅 / 间歇 / toast
+    // 横幅 / 间歇 / toast / boss 血条
     this.banner = el('div'); this.banner.id = 'tbd-banner';
     this.hud.appendChild(this.banner);
     this.inter = el('div'); this.inter.id = 'tbd-inter';
@@ -220,6 +239,11 @@ export class UI {
     this.hud.appendChild(this.inter);
     this.toast = el('div'); this.toast.id = 'tbd-toast';
     this.hud.appendChild(this.toast);
+
+    this.bossbar = el('div'); this.bossbar.id = 'tbd-bossbar';
+    this.bossbar.innerHTML = `<div class="nm">潮 汐 巨 兽</div><div class="bar"><div class="fill"></div></div>`;
+    this.hud.appendChild(this.bossbar);
+    this.bossFill = this.bossbar.querySelector('.fill');
 
     this.root.appendChild(this.hud);
     this.hudRefs = {
@@ -241,6 +265,12 @@ export class UI {
     if (coreRatio !== undefined) r.coreFill.style.width = `${Math.max(0, coreRatio * 100)}%`;
     if (heroLv !== undefined) r.lv.textContent = heroLv;
     if (heroXp !== undefined) r.xp.style.width = `${Math.min(heroXp * 100, 100)}%`;
+  }
+
+  setBossHp(ratio) {
+    if (ratio === null) { this.bossbar.style.display = 'none'; return; }
+    this.bossbar.style.display = 'block';
+    this.bossFill.style.width = `${Math.max(0, ratio * 100)}%`;
   }
 
   setSkillCd(key, ratio, text) {
