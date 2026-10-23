@@ -2,6 +2,8 @@
 
 > **3D 塔防 × 英雄动作混合游戏** —— 星潮裂隙涌出虚空生物，你既要造塔布防，也要亲自操控机甲"汐卫"开火放技能，撑过 25 波狂潮，守住中央的潮核。胜利后可进入无尽模式继续冲分。
 
+**🎮 在线直玩：https://qisi3344.github.io/tidebreak/**
+
 ![tech](https://img.shields.io/badge/three.js-3D-blue) ![tech](https://img.shields.io/badge/Vite-build-green) ![assets](https://img.shields.io/badge/assets-100%25%20procedural-ff69b4)
 
 全部素材（模型 / 地形 / 音效 / BGM / 粒子）均为代码程序化生成，零外部资源、零付费素材。
