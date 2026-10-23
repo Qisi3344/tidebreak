@@ -34,6 +34,7 @@ export class Game {
     this.state = STATE.MENU;
     this.coreHp = MAP.coreHp;
     this.coreMax = MAP.coreHp;
+    this.globalDmgMul = 1;   // 潮核充能：每守住一个 Boss 波全塔 +15%
     this.time = 0;
     this.shake = 0;
     this._qbuf = [];
@@ -188,6 +189,7 @@ export class Game {
     this.waves.reset();
     this.ui.clearFloats();
     this.coreHp = MAP.coreHp;
+    this.globalDmgMul = 1;
     this.shake = 0;
 
     this.state = STATE.PLAYING;
@@ -473,6 +475,14 @@ export class Game {
         this.economy.gain(reward);
         this.economy.addScore(reward);
         this.ui.floatText(this.world.corePos.clone().setY(3), `第 ${waveNum} 波守住 +◈${reward}`, '#7fffd4', 16);
+        // 潮核充能：守住 Boss 波，全塔伤害永久提升
+        if (waveNum % 5 === 0) {
+          this.globalDmgMul *= 1.18;
+          this.ui.showBanner('潮 核 充 能', `全塔伤害提升至 ${Math.round(this.globalDmgMul * 100)}%`, 2.4);
+          this.audio.upgrade();
+          this.fx.ring(0, 16, 0xffd27a, 9, 1.0);
+          this.fx.burst(0, 2, 16, 0xffd27a, { count: 40, speed: 7, life: 1.0, up: 6 });
+        }
         if (waveNum >= WAVES_TOTAL && !this.waves.endless) { this._victory(); return; }
         this.ui.showBanner(`第 ${waveNum} 波 · 已守住`, `波次奖励 +◈${reward}`, 1.8);
       });

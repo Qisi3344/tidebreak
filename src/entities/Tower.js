@@ -147,6 +147,7 @@ export class Tower {
   update(dt, grid, game) {
     this.t += dt;
     const s = this.stats;
+    const dmgMul = game ? game.globalDmgMul || 1 : 1;
     this.cd -= dt;
 
     // 目标选择
@@ -194,7 +195,7 @@ export class Tower {
         positions.setXYZ(1, target.pos.x, target.hitY, target.pos.z);
         positions.needsUpdate = true;
         this.beam.material.opacity = 0.55 + Math.sin(this.t * 30) * 0.25;
-        target.damage(s.dmg * dt, { src: 'beam' });
+        target.damage(s.dmg * dmgMul * dt, { src: 'beam' });
         if (this.grp.userData.crystal) this.grp.userData.crystal.rotation.y += dt * 6;
         break;
       }
@@ -204,7 +205,7 @@ export class Tower {
           this.cd = 1 / s.rate;
           const hit = game.queryEnemies(this.pos.x, this.pos.z, s.aoe, this._q2 || (this._q2 = []));
           for (const e of hit) {
-            e.damage(s.dmg);
+            e.damage(s.dmg * dmgMul);
             e.applySlow(s.slow, s.slowDur);
           }
           game.onFrostPulse(this.pos, s.aoe);
@@ -218,7 +219,7 @@ export class Tower {
           this.cd = 1 / s.rate;
           game.spawnProjectile(muzzleWorld, {
             kind: 'chase', target, speed: this.type === 'longbow' ? 38 : 24,
-            dmg: s.dmg, aoe: s.aoe || 0, hitsFly: true, color: this.def.color,
+            dmg: s.dmg * dmgMul, aoe: s.aoe || 0, hitsFly: true, color: this.def.color,
           });
           game.onTowerShoot(this, muzzleWorld);
         }

@@ -8,7 +8,7 @@ export const MAP = {
   half: 22,
   cell: 2,           // 建造格子边长
   gridN: 22,         // 每边格数 = size / cell
-  coreHp: 20,        // 潮核血量
+  coreHp: 25,        // 潮核血量
 };
 
 // ---------- 主路径航点（世界坐标 XZ）----------
@@ -30,7 +30,7 @@ export const TOWERS = {
     levels: [
       { cost: 60,  dmg: 6,  range: 7,  rate: 3.5 },  // rate = 发/秒
       { cost: 50,  dmg: 11, range: 7.5, rate: 4.2 },
-      { cost: 90,  dmg: 19, range: 8,  rate: 5.0 },
+      { cost: 90,  dmg: 22, range: 8,  rate: 5.0 },
     ],
   },
   frost: {
@@ -39,7 +39,7 @@ export const TOWERS = {
     levels: [
       { cost: 80,  dmg: 3, range: 6, rate: 0.8, slow: 0.45, slowDur: 1.6, aoe: 3.2 },
       { cost: 70,  dmg: 6, range: 6.5, rate: 0.9, slow: 0.55, slowDur: 2.0, aoe: 3.8 },
-      { cost: 120, dmg: 10, range: 7, rate: 1.0, slow: 0.65, slowDur: 2.4, aoe: 4.4 },
+      { cost: 120, dmg: 12, range: 7, rate: 1.0, slow: 0.65, slowDur: 2.4, aoe: 4.4 },
     ],
   },
   starfire: {
@@ -48,7 +48,7 @@ export const TOWERS = {
     levels: [
       { cost: 110, dmg: 14, range: 8, rate: 0.7, aoe: 2.6 },
       { cost: 95,  dmg: 26, range: 8.5, rate: 0.75, aoe: 3.0 },
-      { cost: 160, dmg: 46, range: 9, rate: 0.8, aoe: 3.5 },
+      { cost: 160, dmg: 52, range: 9, rate: 0.8, aoe: 3.5 },
     ],
   },
   prism: {
@@ -57,7 +57,7 @@ export const TOWERS = {
     levels: [
       { cost: 150, dmg: 22, range: 9 },   // dmg = 每秒
       { cost: 130, dmg: 42, range: 9.5 },
-      { cost: 220, dmg: 80, range: 10 },
+      { cost: 220, dmg: 90, range: 10 },
     ],
   },
   longbow: {
@@ -66,7 +66,7 @@ export const TOWERS = {
     levels: [
       { cost: 130, dmg: 40, range: 14, rate: 0.5 },
       { cost: 115, dmg: 85, range: 15, rate: 0.55 },
-      { cost: 190, dmg: 170, range: 16, rate: 0.6 },
+      { cost: 190, dmg: 190, range: 16, rate: 0.6 },
     ],
   },
 };
@@ -85,7 +85,7 @@ export const ENEMIES = {
     color: 0xc46bff, size: 0.85, flying: false, armor: 3, // 每次受击减伤
   },
   floater: {
-    id: 'floater', name: '悬浮者', hp: 44, speed: 2.4, bounty: 14, score: 18,
+    id: 'floater', name: '悬浮者', hp: 34, speed: 2.4, bounty: 14, score: 18,
     color: 0x7dfff0, size: 0.6, flying: true,
   },
   splitter: {
@@ -150,59 +150,59 @@ export function buildWaves() {
     { type: 'drifter', count: 16, gap: 0.6, delay: 6 },
   ], 120);                                                                         // W15 Boss
   push([
-    { type: 'floater', count: 18, gap: 0.6 },
-    { type: 'shelled', count: 10, gap: 1.4, delay: 6 },
+    { type: 'floater', count: 11, gap: 0.8 },
+    { type: 'shelled', count: 8, gap: 1.6, delay: 6 },
   ]);
   push([
-    { type: 'splitter', count: 16, gap: 0.7 },
-    { type: 'floater', count: 14, gap: 0.7, delay: 5 },
+    { type: 'splitter', count: 14, gap: 0.8 },
+    { type: 'floater', count: 10, gap: 0.9, delay: 5 },
   ]);
   push([
-    { type: 'shelled', count: 16, gap: 1.1 },
-    { type: 'splitter', count: 12, gap: 0.9, delay: 6 },
+    { type: 'shelled', count: 14, gap: 1.2 },
+    { type: 'splitter', count: 11, gap: 1.0, delay: 6 },
   ]);
   push([
-    { type: 'drifter', count: 36, gap: 0.3 },
-    { type: 'shelled', count: 12, gap: 1.2, delay: 6 },
-    { type: 'floater', count: 16, gap: 0.6, delay: 10 },
+    { type: 'drifter', count: 24, gap: 0.4 },
+    { type: 'shelled', count: 11, gap: 1.3, delay: 6 },
+    { type: 'floater', count: 12, gap: 0.7, delay: 10 },
   ]);
   push([
     { type: 'boss', count: 3, gap: 7, delay: 1 },
-    { type: 'splitter', count: 12, gap: 0.9, delay: 8 },
+    { type: 'splitter', count: 11, gap: 0.9, delay: 10 },
   ], 160);                                                                         // W20 Boss
   push([
-    { type: 'shelled', count: 18, gap: 1.0 },
-    { type: 'floater', count: 20, gap: 0.55, delay: 5 },
+    { type: 'shelled', count: 16, gap: 1.1 },
+    { type: 'floater', count: 16, gap: 0.6, delay: 5 },
   ]);
   push([
-    { type: 'splitter', count: 20, gap: 0.6 },
-    { type: 'shelled', count: 14, gap: 1.1, delay: 6 },
+    { type: 'splitter', count: 18, gap: 0.7 },
+    { type: 'shelled', count: 12, gap: 1.2, delay: 6 },
   ]);
   push([
-    { type: 'drifter', count: 40, gap: 0.25 },
-    { type: 'floater', count: 20, gap: 0.5, delay: 6 },
-    { type: 'shelled', count: 14, gap: 1.2, delay: 8 },
+    { type: 'drifter', count: 36, gap: 0.28 },
+    { type: 'floater', count: 18, gap: 0.55, delay: 6 },
+    { type: 'shelled', count: 12, gap: 1.3, delay: 8 },
   ]);
   push([
-    { type: 'boss', count: 4, gap: 6, delay: 1 },
-    { type: 'splitter', count: 16, gap: 0.8, delay: 10 },
-    { type: 'floater', count: 16, gap: 0.7, delay: 14 },
+    { type: 'boss', count: 3, gap: 7, delay: 1 },
+    { type: 'splitter', count: 14, gap: 0.9, delay: 10 },
+    { type: 'floater', count: 14, gap: 0.8, delay: 14 },
   ]);                                                                              // W24 高压
   push([
     { type: 'boss', count: 2, gap: 12, delay: 1 },
-    { type: 'shelled', count: 20, gap: 1.0, delay: 5 },
-    { type: 'drifter', count: 30, gap: 0.35, delay: 8 },
-    { type: 'floater', count: 20, gap: 0.5, delay: 12 },
+    { type: 'shelled', count: 18, gap: 1.1, delay: 5 },
+    { type: 'drifter', count: 28, gap: 0.4, delay: 8 },
+    { type: 'floater', count: 18, gap: 0.55, delay: 12 },
   ], 300);                                                                         // W25 最终
 
   return W;
 }
 
 // 全局难度乘子
-export function hpScale(wave) { return 1 + 0.22 * (wave - 1) + 0.0105 * (wave - 1) ** 2; }
+export function hpScale(wave) { return 1 + 0.22 * (wave - 1) + 0.0082 * (wave - 1) ** 2; }
 export function speedScale(wave) { return Math.min(1 + 0.012 * (wave - 1), 1.35); }
 // Boss 血量：hpScale 封顶 + 波次额外乘子
-export function bossHpScale(wave) { return Math.min(hpScale(wave), 7) * (1 + 0.32 * Math.floor(wave / 5)); }
+export function bossHpScale(wave) { return Math.min(hpScale(wave), 5.5) * (1 + 0.25 * Math.floor(wave / 5)); }
 
 // ---------- 英雄 ----------
 export const HERO = {
@@ -212,7 +212,7 @@ export const HERO = {
   shootDmg: 10,
   shootRange: 11,
   bulletSpeed: 26,
-  xpToLevel: (lv) => 60 + lv * 45,
+  xpToLevel: (lv) => 55 + lv * 40,
   skillQ: { name: '汐爆', dmg: 55, radius: 4.2, cd: 9, key: 'Q' },
   skillE: { name: '时滞力场', radius: 5.5, slow: 0.6, dur: 4, cd: 14, key: 'E' },
   upgrades: [

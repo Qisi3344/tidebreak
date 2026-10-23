@@ -143,6 +143,7 @@ export class Enemy {
     this.wpIndex = 1;
     this.showHpT = def.boss ? 1e9 : 0;
     this.t = Math.random() * 10;
+    this._orbit = null;
 
     // Boss 技能状态
     if (def.boss) {
@@ -226,16 +227,33 @@ export class Enemy {
     // 移动
     const m = this.currentModel;
     if (this.flying) {
-      // 直线飞向潮核
+      // 直线飞向潮核；抵达近核区后绕核盘旋一圈半再钻入（给防守集火窗口）
       const dx = 0 - this.pos.x, dz = 16 - this.pos.z;
       const d = Math.hypot(dx, dz);
-      if (d < 1.2) {
-        this.alive = false;
-        if (this.onLeak) this.onLeak(this);
-        return;
+      if (d < 5.0 && !this._orbit) {
+        this._orbit = { ang: Math.atan2(this.pos.z - 16, this.pos.x), left: Math.PI * 2.4, r: 5.0 };
       }
-      this.pos.x += (dx / d) * speed * dt;
-      this.pos.z += (dz / d) * speed * dt;
+      if (this._orbit) {
+        const o = this._orbit;
+        const stepA = (speed / o.r) * dt;
+        o.ang += stepA;
+        o.left -= stepA;
+        if (o.left <= 0) {
+          this.alive = false;
+          if (this.onLeak) this.onLeak(this);
+          return;
+        }
+        this.pos.x = Math.cos(o.ang) * o.r;
+        this.pos.z = 16 + Math.sin(o.ang) * o.r;
+      } else {
+        if (d < 0.5) {
+          this.alive = false;
+          if (this.onLeak) this.onLeak(this);
+          return;
+        }
+        this.pos.x += (dx / d) * speed * dt;
+        this.pos.z += (dz / d) * speed * dt;
+      }
       m.grp.position.set(this.pos.x, 2.3 + Math.sin(this.t * 3) * 0.25, this.pos.z);
       m.grp.rotation.y += dt * 1.2;
     } else {
